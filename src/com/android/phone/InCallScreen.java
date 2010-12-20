@@ -1230,25 +1230,7 @@ public class InCallScreen extends Activity
         if (mCallCard != null) mCallCard.stopTimer();
     }
 
-    
-    /* 
-	 * Adding Trackball Answer -- Nushio
-	 */
-	@Override
-	public boolean onTrackballEvent(MotionEvent event) {
-		mSettings = CallFeaturesSetting.getInstance(android.preference.PreferenceManager.getDefaultSharedPreferences(this));
-		if(mSettings.mTrackAnswer){
-			if(event.getAction() == MotionEvent.ACTION_UP){
-				long realTime = android.os.SystemClock.elapsedRealtime();
-				long downTime = event.getDownTime();
-				if(realTime > (downTime))
-					internalAnswerCall();
-			}
-		}
-		return super.onTrackballEvent(event);
-	}
-
-	private void initInCallScreen() {
+    private void initInCallScreen() {
         if (VDBG) log("initInCallScreen()...");
 
         // Have the WindowManager filter out touch events that are "too fat".
@@ -1474,6 +1456,23 @@ public class InCallScreen extends Activity
         }
     }
 
+    /* 
+	 * Adding Trackball Answer -- Nushio
+	 */
+	@Override
+	public boolean onTrackballEvent(MotionEvent event) {
+		mSettings = CallFeaturesSetting.getInstance(android.preference.PreferenceManager.getDefaultSharedPreferences(this));
+		if(mSettings.mTrackAnswer){
+			if(event.getAction() == MotionEvent.ACTION_UP){
+				long realTime = android.os.SystemClock.elapsedRealtime();
+				long downTime = event.getDownTime();
+				if(realTime > (downTime))
+					internalAnswerCall();
+			}
+		}
+		return super.onTrackballEvent(event);
+	}
+	
     @Override
     public boolean dispatchKeyEvent(KeyEvent event) {
         // if (DBG) log("dispatchKeyEvent(event " + event + ")...");
