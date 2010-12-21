@@ -599,4 +599,7 @@
     <string name="slide_to_decline_hint" msgid="4484576372463030324">"Rechazar"</string>
     <string name="trackball_answer">"Contestar con Trackball"</string>	
 	<string name="trackball_answer_sum">"Presiona el Trackball para contestar la llamada"</string>
+	<string name="trackball_answer_instant">"Presiona para Contestar"</string>	
+	<string name="trackball_answer_delay_half">"Presiona medio segundo para Contestar"</string>
+	<string name="trackball_answer_delay_one">"Presiona un segundo para Contestar"</string>
 </resources>

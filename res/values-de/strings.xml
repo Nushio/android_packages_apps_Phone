@@ -659,4 +659,10 @@
 
     <string name="phone_number_label">Meine Nummer</string>
     <string name="phone_number_summary">Die Telefonnummer für dieses Gerät einstellen</string>
+    
+    <string name="trackball_answer">Trackball Annahme</string>	
+	<string name="trackball_answer_sum">Drücke auf den Trackball um den eingehenden Anruf anzunehmen</string>
+	<string name="trackball_answer_instant">Kurz drücken zum annehmen</string>	
+	<string name="trackball_answer_delay_half">0,5 Sekunden halten zum annehmen</string>
+	<string name="trackball_answer_delay_one">1 Sekunde halten zum annehmen</string>
 </resources>

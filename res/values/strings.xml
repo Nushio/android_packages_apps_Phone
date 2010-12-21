@@ -1190,4 +1190,7 @@
     <!-- TrackBall Answer - Added by Nushio -->
  	<string name="trackball_answer">Trackball Answer</string>	
 	<string name="trackball_answer_sum">Press the Trackball to Answer the incoming phone call.</string>
+	<string name="trackball_answer_instant">Tap to Answer</string>	
+	<string name="trackball_answer_delay_half">Hold half-a-second to Answer.</string>
+	<string name="trackball_answer_delay_one">Hold one second to Answer.</string>
 </resources>

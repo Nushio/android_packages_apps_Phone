@@ -650,4 +650,10 @@
 
     <string name="phone_number_label">Mio numero</string>
     <string name="phone_number_summary">Imposta il numero di telefono per questo dispositivo</string>
+    
+    <string name="trackball_answer">Risposta con Trackball</string>
+	<string name="trackball_answer_sum">Premi la Trackball per Rispondere alle Chiamate in Arrivo.</string>
+	<string name="trackball_answer_instant">Premi per Rispondere</string>
+	<string name="trackball_answer_delay_half">Tieni premuto mezzo secondo per rispondere.</string>
+	<string name="trackball_answer_delay_one">Tieni premuto un secondo per rispondere.</string>
 </resources>
