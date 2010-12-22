@@ -663,7 +663,7 @@
     <string name="trackball_answer">Trackball Annahme</string>	
 	<string name="trackball_answer_sum">Drücke auf den Trackball um den eingehenden Anruf anzunehmen</string>
 	<string-array name="trackballLabels">
-		<item>Deaktiviert</item>  
+		<item>Ausgeschaltet</item>  
         <item>Kurz drücken zum annehmen</item>  
         <item>0,5 Sekunden halten zum annehmen</item>  
         <item>1 Sekunde halten zum annehmen</item>    
