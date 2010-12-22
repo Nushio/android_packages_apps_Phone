@@ -653,7 +653,16 @@
     
     <string name="trackball_answer">Risposta con Trackball</string>
 	<string name="trackball_answer_sum">Premi la Trackball per Rispondere alle Chiamate in Arrivo.</string>
-	<string name="trackball_answer_instant">Premi per Rispondere</string>
-	<string name="trackball_answer_delay_half">Tieni premuto mezzo secondo per rispondere.</string>
-	<string name="trackball_answer_delay_one">Tieni premuto un secondo per rispondere.</string>
+	<string-array name="trackballLabels">
+		<item>Disabled</item>  
+        <item>Tap to Answer</item>  
+        <item>Hold half a second to Answer</item>  
+        <item>Hold one second to Answer</item>    
+    </string-array>  
+    <string-array name="trackballValues">  
+        <item>-1</item>
+        <item>0</item>
+        <item>300</item>
+        <item>800</item> 
+    </string-array>
 </resources>

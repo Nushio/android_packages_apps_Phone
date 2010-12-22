@@ -1462,11 +1462,15 @@ public class InCallScreen extends Activity
 	@Override
 	public boolean onTrackballEvent(MotionEvent event) {
 		mSettings = CallFeaturesSetting.getInstance(android.preference.PreferenceManager.getDefaultSharedPreferences(this));
-		if(mSettings.mTrackAnswer){
+		int delay = -1;
+		try{
+			delay = Integer.parseInt(mSettings.mTrackAnswer);
+		}catch(Exception e){}
+		if(delay > -1){
 			if(event.getAction() == MotionEvent.ACTION_UP){
 				long realTime = android.os.SystemClock.elapsedRealtime();
 				long downTime = event.getDownTime();
-				if(realTime > (downTime))
+				if(realTime > (downTime + delay))
 					internalAnswerCall();
 			}
 		}

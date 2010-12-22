@@ -117,8 +117,10 @@
         android:persistent="false"
         android:summary="@string/set_force_touch_sum"/>
     <!-- Trackball Answer - Added by Nushio -->
-	<CheckBoxPreference android:key="button_trackball_answer"
-		android:title="@string/trackball_answer" android:summary="@string/trackball_answer_sum" />
+	<ListPreference android:key="button_trackball_answer_timed"
+		android:title="@string/trackball_answer" android:summary="@string/trackball_answer_sum" 
+    	android:entries="@array/trackballLabels" android:entryValues="@array/trackballValues"
+    	android:dialogTitle="@string/trackball_answer" android:persistent="false" />
 	<!-- end Trackball Answer -->
     <CheckBoxPreference
         android:key="button_turn_silence"
