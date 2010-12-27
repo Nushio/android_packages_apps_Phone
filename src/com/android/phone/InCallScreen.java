@@ -182,6 +182,9 @@ public class InCallScreen extends Activity
     // false.
     public static final String ACTION_UNDEFINED = "com.android.phone.InCallScreen.UNDEFINED";
 
+    //Trackball Answer
+    Long mTrackballHitTime;
+    
     // High-level "modes" of the in-call UI.
     private enum InCallScreenMode {
         /**
@@ -255,7 +258,7 @@ public class InCallScreen extends Activity
     private InCallMenu mInCallMenu;  // used on some devices
     private InCallTouchUi mInCallTouchUi;  // used on some devices
     private ManageConferenceUtils mManageConferenceUtils;
-
+    
     // DTMF Dialer controller and its view:
     private DTMFTwelveKeyDialer mDialer;
     private DTMFTwelveKeyDialerView mDialerView;
@@ -1462,14 +1465,32 @@ public class InCallScreen extends Activity
 	@Override
 	public boolean onTrackballEvent(MotionEvent event) {
 		mSettings = CallFeaturesSetting.getInstance(android.preference.PreferenceManager.getDefaultSharedPreferences(this));
-		int delay = -1;
-		try{
-			delay = Integer.parseInt(mSettings.mTrackAnswer);
-		}catch(Exception e){}
-		if(delay > -1){
-			if(event.getAction() == MotionEvent.ACTION_UP){
-				long realTime = android.os.SystemClock.elapsedRealtime();
-				long downTime = event.getDownTime();
+		long realTime = android.os.SystemClock.elapsedRealtime();
+		long downTime = event.getDownTime();
+		if(event.getAction() == MotionEvent.ACTION_DOWN){
+			if(mSettings.mTrackAnswer.equals("dt")){
+				//Double Tap Code taken from MetalHead's Double-Tap-to-skip-song. 
+				long timeBetweenHits;
+				if (mTrackballHitTime == null)
+					mTrackballHitTime = realTime;
+				else{
+					if (realTime > mTrackballHitTime)
+						timeBetweenHits = realTime - mTrackballHitTime; // System clock rolled over
+					else
+						timeBetweenHits = realTime + (Long.MAX_VALUE - mTrackballHitTime); // Time to Answer Call
+
+					if (timeBetweenHits < 400) { //400 being double-tap duration distance
+						internalAnswerCall();
+					}
+					mTrackballHitTime = null;
+				}
+			}
+		}else if(event.getAction() == MotionEvent.ACTION_UP){
+			int delay = -1;
+			try{
+				delay = Integer.parseInt(mSettings.mTrackAnswer);
+			}catch(Exception e){}
+			if(delay > -1){
 				if(realTime > (downTime + delay))
 					internalAnswerCall();
 			}

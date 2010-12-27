@@ -647,14 +647,7 @@
 	<string name="trackball_answer_sum">Utiliser le Trackball pour Répondre aux appels entrants.</string>
 	<string-array name="trackballLabels">
 		<item>Désactivé</item> 
-		<item>Cliquer pour Répondre</item> 
-		<item>Maintenir une demi-seconde pour Répondre</item> 
-		<item>Maintenir une seconde pour Répondre</item> 
+		<item>Cliquer pour Répondre</item>
+		<item>Double Cliquez pour Répondre</item> 
 	</string-array>
-	<string-array name="trackballValues">  
-        <item>-1</item>
-        <item>0</item>
-        <item>300</item>
-        <item>800</item> 
-    </string-array> 
 </resources>

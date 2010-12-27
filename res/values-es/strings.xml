@@ -600,15 +600,8 @@
     <string name="trackball_answer">"Contestar con Trackball"</string>	
 	<string name="trackball_answer_sum">"Presiona el Trackball para contestar la llamada"</string>
 	<string-array name="trackballLabels">
-		<item>Desactivado</item>  
-        <item>Presiona para Contestar</item>  
-        <item>Presiona medio segundo para Contestar</item>  
-        <item>Presiona un segundo para Contestar</item>    
-    </string-array>  
-    <string-array name="trackballValues">  
-        <item>-1</item>
-        <item>0</item>
-        <item>300</item>
-        <item>800</item> 
-    </string-array>  
+		<item>Desactivado</item>    
+        <item>Presiona para Contestar</item>
+        <item>Doble click para Contestar</item>     
+    </string-array>
 </resources>
