@@ -1469,6 +1469,10 @@ public class CallFeaturesSetting extends PreferenceActivity
 	init(PreferenceManager.getDefaultSharedPreferences(getApplicationContext()));
 	mTrackballAnswer = (ListPreference) prefSet.findPreference(BUTTON_TRACKBALL_ANSWER);
 	mTrackballAnswer.setValue(mTrackAnswer);
+	//No reason to show Trackball Answer if it doesn't have a Trackball.
+	if(getResources().getConfiguration().navigation != 3){
+		((PreferenceCategory) prefSet.findPreference(CATEGORY_ADVANCED)).removePreference(mTrackballAnswer);
+	}
     }
 
     private void createSipCallSettings() {
