@@ -44,7 +44,8 @@ import com.android.internal.telephony.CallManager;
 
 import java.util.List;
 
-
+import android.provider.ContactsContract;
+import android.preference.PreferenceManager;
 /**
  * "Call card" UI element: the in-call screen contains a tiled layout of call
  * cards, each representing the state of a current "call" (ie. an active call,
@@ -114,6 +115,10 @@ public class CallCard extends FrameLayout
     // Cached DisplayMetrics density.
     private float mDensity;
 
+    // add by cytown
+    private CallFeaturesSetting mSettings;
+    private TextView mOrganization;
+
     public CallCard(Context context, AttributeSet attrs) {
         super(context, attrs);
 
@@ -129,6 +134,9 @@ public class CallCard extends FrameLayout
                 true);
 
         mApplication = PhoneApp.getInstance();
+
+        // add by cytown
+        mSettings = CallFeaturesSetting.getInstance(PreferenceManager.getDefaultSharedPreferences(context));
 
         mCallTime = new CallTime(this);
 
@@ -188,7 +196,9 @@ public class CallCard extends FrameLayout
         mLabel = (TextView) findViewById(R.id.label);
         mCallTypeLabel = (TextView) findViewById(R.id.callTypeLabel);
         mSocialStatus = (TextView) findViewById(R.id.socialStatus);
-
+        //Advanced Settings, Show Organization
+        mOrganization = (TextView) findViewById(R.id.organization);
+        
         // "Other call" info area
         mSecondaryCallName = (TextView) findViewById(R.id.secondaryCallName);
         mSecondaryCallStatus = (TextView) findViewById(R.id.secondaryCallStatus);
@@ -1060,6 +1070,9 @@ public class CallCard extends FrameLayout
         Uri personUri = null;
         String socialStatusText = null;
         Drawable socialStatusBadge = null;
+	
+	// Advanced Settings, display organization name
+	boolean updateName = false;
 
         if (info != null) {
             // It appears that there is a small change in behaviour with the
@@ -1120,17 +1133,27 @@ public class CallCard extends FrameLayout
                     displayName = info.name;
                     displayNumber = number;
                     label = info.phoneLabel;
+		    // add by cytown for show organization
+                    updateName = true;
                 }
             }
             personUri = ContentUris.withAppendedId(Contacts.CONTENT_URI, info.person_id);
         } else {
             displayName =  getPresentationString(presentation);
         }
-
+	
+	//Advanced Settings, Show Organization Name
         if (call.isGeneric()) {
             mName.setText(R.string.card_title_in_call);
+            mOrganization.setVisibility(View.GONE);
         } else {
             mName.setText(displayName);
+            if (DBG) log("show ======= " + updateName + ":" + mSettings.mShowOrgan);
+            if (updateName && mSettings.mShowOrgan) {
+                updateOrganization(info.person_id);
+            } else {
+                mOrganization.setVisibility(View.GONE);
+            }
         }
         mName.setVisibility(View.VISIBLE);
 
@@ -1176,6 +1199,68 @@ public class CallCard extends FrameLayout
         // Other text fields:
         updateCallTypeLabel(call);
         updateSocialStatus(socialStatusText, socialStatusBadge, call);  // Currently unused
+    }
+     //Advanced Settings, Show Organization
+     private void updateOrganization(final long person_id) {
+        android.database.Cursor c = CallCard.this.getContext().getContentResolver().query(ContactsContract.Data.CONTENT_URI,
+                new String[] {ContactsContract.CommonDataKinds.Organization.COMPANY},
+                ContactsContract.Data.CONTACT_ID + " = ? and " + ContactsContract.Data.MIMETYPE + " = '" +
+                ContactsContract.CommonDataKinds.Organization.CONTENT_ITEM_TYPE + "'", 
+                new String[] { person_id + "" },
+                null);
+        android.database.Cursor n = CallCard.this.getContext().getContentResolver().query(ContactsContract.Data.CONTENT_URI,
+                new String[] {ContactsContract.CommonDataKinds.Nickname.NAME},
+                ContactsContract.Data.CONTACT_ID + " = ? and " + ContactsContract.Data.MIMETYPE + " = '" +
+                ContactsContract.CommonDataKinds.Nickname.CONTENT_ITEM_TYPE + "'", 
+                new String[] { person_id + "" },
+                null);
+        String company = null;
+        String nick = null;
+        if (c != null) {
+        	while (c.moveToNext()) {
+        	    int len = c.getColumnCount();
+        	    boolean done = false;
+        	    for (int i=len-1; !done; i--) {
+        	    	try {
+        	    	    company = c.getString(i);
+        	    	    if (!TextUtils.isEmpty(company)) {
+            	    	    done = true;
+            	    	    }
+        	    	    } catch (Exception e) { }
+        	    	if (i==0) { done = true; }
+            	    }
+                } 
+            c.close();
+            }
+        if (n != null) {
+        	while (n.moveToNext()) {
+        	    int len = n.getColumnCount();
+        	    boolean done = false;
+        	    for (int i=len-1; !done; i--) {
+        	    	try {
+        	    	    nick = n.getString(i);
+        	    	    if (!TextUtils.isEmpty(nick)) {
+            	    	    done = true;
+            	    	    }
+        	    	    } catch (Exception e) { }
+        	    	if (i==0) { done = true; }
+            	    }
+                } 
+            n.close();
+            }
+               
+        if ((nick != null) && (!TextUtils.isEmpty(nick))) {
+        	mOrganization.setText(nick);
+            mOrganization.setVisibility(View.VISIBLE);
+            mOrganization.invalidate();
+            } else
+        if ((company != null) && (!TextUtils.isEmpty(company))) {
+        	mOrganization.setText(company);
+            mOrganization.setVisibility(View.VISIBLE);
+            mOrganization.invalidate();	
+        	} else {
+        	mOrganization.setVisibility(View.GONE);
+        	}
     }
 
     private String getPresentationString(int presentation) {

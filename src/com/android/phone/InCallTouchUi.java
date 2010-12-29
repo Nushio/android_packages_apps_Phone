@@ -94,6 +94,9 @@ public class InCallTouchUi extends FrameLayout
     private boolean mAllowIncomingCallTouchUi;
     private boolean mAllowInCallTouchUi;
 
+    //Advanced Settings
+    private CallFeaturesSetting mSettings;
+
     public InCallTouchUi(Context context, AttributeSet attrs) {
         super(context, attrs);
 
@@ -104,7 +107,8 @@ public class InCallTouchUi extends FrameLayout
         // Inflate our contents, and add it (to ourself) as a child.
         LayoutInflater inflater = LayoutInflater.from(context);
         inflater.inflate(
-                R.layout.incall_touch_ui,  // resource
+		//Advanced Settings
+                mSettings.mLeftHand ? R.layout.incall_touch_ui_left : R.layout.incall_touch_ui,  // resource
                 this,                      // root
                 true);
 
@@ -120,6 +124,7 @@ public class InCallTouchUi extends FrameLayout
         mAllowInCallTouchUi = getResources().getBoolean(R.bool.allow_in_call_touch_ui);
         if (DBG) log("- regular in-call touch UI: "
                      + (mAllowInCallTouchUi ? "ENABLED" : "DISABLED"));
+	mSettings = CallFeaturesSetting.getInstance(android.preference.PreferenceManager.getDefaultSharedPreferences(context));
     }
 
     void setInCallScreenInstance(InCallScreen inCallScreen) {

@@ -28,6 +28,8 @@ import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.database.Cursor;
+import android.hardware.Sensor;
+import android.hardware.SensorManager;
 import android.media.AudioManager;
 import android.net.sip.SipManager;
 import android.net.sip.SipProfile;
@@ -66,6 +68,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.util.ArrayList;
+import java.util.Collections;
 
 public class CallFeaturesSetting extends PreferenceActivity
         implements DialogInterface.OnClickListener,
@@ -386,6 +392,53 @@ public class CallFeaturesSetting extends PreferenceActivity
     private static final String CATEGORY_ADVANCED = "pref_advanced_settings";
     private static CallFeaturesSetting mInstance = null;
 
+    // add by cytown for vibrate
+    private static final String BUTTON_VIBRATE_OUTGOING = "button_vibrate_outgoing";
+    private CheckBoxPreference mButtonVibOutgoing;
+    static boolean mVibOutgoing;
+    private static final String BUTTON_VIBRATE_45       = "button_vibrate_45";
+    private CheckBoxPreference mButtonVib45;
+    static boolean mVib45;
+    private static final String BUTTON_VIBRATE_HANGUP   = "button_vibrate_hangup";
+    private CheckBoxPreference mButtonVibHangup;
+    static boolean mVibHangup;
+    private static final String BUTTON_SCREEN_AWAKE     = "button_screen_awake";
+    private CheckBoxPreference mButtonScreenAwake;
+    static boolean mScreenAwake;
+    private static final String BUTTON_ALWAYS_PROXIMITY = "button_always_proximity";
+    private CheckBoxPreference mButtonAlwaysProximity;
+    static boolean mAlwaysProximity;
+    private static final String BUTTON_RETURN_HOME     = "button_return_home";
+    private CheckBoxPreference mButtonReturnHome;
+    static boolean mReturnHome;
+    private static final String BUTTON_LED_NOTIFY       = "button_led_notify";
+    private CheckBoxPreference mButtonLedNotify;
+    static boolean mLedNotify;
+    private static final String BUTTON_SHOW_ORGAN       = "button_show_organ";
+    private CheckBoxPreference mButtonShowOrgan;
+    static boolean mShowOrgan;
+    private static final String BUTTON_FORCE_TOUCH      = "button_force_touch";
+    private CheckBoxPreference mButtonForceTouch;
+    static boolean mForceTouch;
+    private static final String BUTTON_VIBRATE_CALL_WAITING = "button_vibrate_call_waiting";
+    private CheckBoxPreference mButtonVibCallWaiting;
+    static boolean mVibCallWaiting;
+    static boolean mTurnSilence;
+    private static final String BUTTON_TURN_SILENCE     = "button_turn_silence";
+    private CheckBoxPreference mButtonTurnSilence;
+    static boolean mLeftHand;
+    private static final String BUTTON_LEFT_HAND        = "button_left_hand";
+    private CheckBoxPreference mButtonLeftHand;
+
+    private static final String BUTTON_ADD_BLACK = "button_add_black";
+    private static final String CATEGORY_BLACK   = "cat_black_list";
+    private static final String BLFILE           = "blacklist.dat";
+    private static final int BLFILE_VER          = 1;
+    private EditPhoneNumberPreference mButtonAddBlack;
+    private PreferenceCategory mCatBlackList;
+    private static HashSet<PhoneNo> setBlackList = new HashSet<PhoneNo>();
+    private static final int ADD_BLACK_LIST_ID = 3;
+
     //Trackball Answer
     private static final String BUTTON_TRACKBALL_ANSWER = "button_trackball_answer_timed";
     private ListPreference mTrackballAnswer;
@@ -508,7 +561,14 @@ public class CallFeaturesSetting extends PreferenceActivity
 
             if (epn == mSubMenuVoicemailSettings) {
                 handleVMBtnClickRequest();
-            }
+           // add by cytown
+           } else if (epn == mButtonAddBlack) {
+                String number = PhoneNumberUtils.stripSeparators((epn.getPhoneNumber()));
+                if (number != null && !number.equals("")) {
+                     if (addBlackList(number)) initPrefBlackList();
+                          epn.setPhoneNumber("");
+                }
+           }
         }
     }
 
@@ -523,6 +583,9 @@ public class CallFeaturesSetting extends PreferenceActivity
             // mSubMenuVoicemailSettings itself, so we should return null.
             if (DBG) log("updating default for voicemail dialog");
             updateVoiceNumberField();
+            return null;
+        // add by cytown
+        } else if (preference == mButtonAddBlack) {
             return null;
         }
 
@@ -698,6 +761,10 @@ public class CallFeaturesSetting extends PreferenceActivity
         switch (requestCode) {
             case VOICEMAIL_PREF_ID:
                 mSubMenuVoicemailSettings.onPickActivityResult(cursor.getString(0));
+                break;
+            // add by cytown
+            case ADD_BLACK_LIST_ID:
+                mButtonAddBlack.onPickActivityResult(cursor.getString(0));
                 break;
             default:
                 // TODO: may need exception here.
@@ -1467,6 +1534,45 @@ public class CallFeaturesSetting extends PreferenceActivity
 
         //Advanced Settings
 	init(PreferenceManager.getDefaultSharedPreferences(getApplicationContext()));
+	mButtonVibOutgoing = (CheckBoxPreference) prefSet.findPreference(BUTTON_VIBRATE_OUTGOING);
+	mButtonVibOutgoing.setChecked(mVibOutgoing);
+	mButtonVib45       = (CheckBoxPreference) prefSet.findPreference(BUTTON_VIBRATE_45);
+	mButtonVib45.setChecked(mVib45);
+	mButtonVibHangup   = (CheckBoxPreference) prefSet.findPreference(BUTTON_VIBRATE_HANGUP);
+	mButtonVibHangup.setChecked(mVibHangup);
+	mButtonScreenAwake = (CheckBoxPreference) prefSet.findPreference(BUTTON_SCREEN_AWAKE);
+	mButtonScreenAwake.setChecked(mScreenAwake);
+	mButtonAlwaysProximity = (CheckBoxPreference) prefSet.findPreference(BUTTON_ALWAYS_PROXIMITY);
+	mButtonAlwaysProximity.setChecked(mAlwaysProximity);
+	mButtonReturnHome = (CheckBoxPreference) prefSet.findPreference(BUTTON_RETURN_HOME);
+	mButtonReturnHome.setChecked(mReturnHome);
+	mButtonLedNotify   = (CheckBoxPreference) prefSet.findPreference(BUTTON_LED_NOTIFY);
+	mButtonLedNotify.setChecked(mLedNotify);
+	mButtonShowOrgan   = (CheckBoxPreference) prefSet.findPreference(BUTTON_SHOW_ORGAN);
+	mButtonShowOrgan.setChecked(mShowOrgan);
+	mButtonTurnSilence = (CheckBoxPreference) prefSet.findPreference(BUTTON_TURN_SILENCE);
+	mButtonTurnSilence.setChecked(mTurnSilence);
+	mButtonLeftHand    = (CheckBoxPreference) prefSet.findPreference(BUTTON_LEFT_HAND);
+	mButtonLeftHand.setChecked(mLeftHand);
+	mButtonVibCallWaiting = (CheckBoxPreference) prefSet.findPreference(BUTTON_VIBRATE_CALL_WAITING);
+	mButtonVibCallWaiting.setChecked(mVibCallWaiting);
+	mButtonForceTouch  = (CheckBoxPreference) prefSet.findPreference(BUTTON_FORCE_TOUCH);
+	if (getResources().getBoolean(R.bool.allow_in_call_touch_ui)) {
+	    ((PreferenceCategory) prefSet.findPreference(CATEGORY_ADVANCED)).removePreference(mButtonForceTouch);
+	} else {
+	    mButtonForceTouch.setChecked(mForceTouch);
+	}
+	mButtonAddBlack = (EditPhoneNumberPreference) prefSet.findPreference(BUTTON_ADD_BLACK);
+	mButtonAddBlack.setParentActivity(this, ADD_BLACK_LIST_ID, this);
+	mButtonAddBlack.setDialogOnClosedListener(this);
+	mCatBlackList = (PreferenceCategory) prefSet.findPreference(CATEGORY_BLACK);
+	initPrefBlackList();
+
+	// No reason to show this if no proximity sensor on device
+	if (((SensorManager)getSystemService(SENSOR_SERVICE)).getDefaultSensor(Sensor.TYPE_PROXIMITY) == null) {
+	    ((PreferenceCategory) prefSet.findPreference(CATEGORY_ADVANCED)).removePreference(mButtonAlwaysProximity);
+	}
+	//Trackball Answer
 	mTrackballAnswer = (ListPreference) prefSet.findPreference(BUTTON_TRACKBALL_ANSWER);
 	mTrackballAnswer.setValue(mTrackAnswer);
 	//No reason to show Trackball Answer if it doesn't have a Trackball.
@@ -1858,9 +1964,116 @@ public class CallFeaturesSetting extends PreferenceActivity
        }
     return mInstance;
     }
+
     private void init(SharedPreferences pref) {
-	//Trackball Answer
+        mVibOutgoing = pref.getBoolean(BUTTON_VIBRATE_OUTGOING, true);
+        mVib45       = pref.getBoolean(BUTTON_VIBRATE_45, false);
+        mVibHangup   = pref.getBoolean(BUTTON_VIBRATE_HANGUP, true);
+        mScreenAwake = pref.getBoolean(BUTTON_SCREEN_AWAKE, false);
+        mAlwaysProximity = pref.getBoolean(BUTTON_ALWAYS_PROXIMITY, false);
+        mReturnHome = pref.getBoolean(BUTTON_RETURN_HOME, true);
+        mLedNotify   = pref.getBoolean(BUTTON_LED_NOTIFY, true);
+        mShowOrgan   = pref.getBoolean(BUTTON_SHOW_ORGAN, false);
+        mTurnSilence = pref.getBoolean(BUTTON_TURN_SILENCE, false);
+        mLeftHand = pref.getBoolean(BUTTON_LEFT_HAND, false);
+        mVibCallWaiting = pref.getBoolean(BUTTON_VIBRATE_CALL_WAITING, false);
+        mForceTouch  = pref.getBoolean(BUTTON_FORCE_TOUCH, PhoneUtils.isProximitySensorAvailable(PhoneApp.getInstance()));
+        //Trackball Answer
         mTrackAnswer = pref.getString(BUTTON_TRACKBALL_ANSWER, "-1");
+        ObjectInputStream ois = null;
+        boolean correctVer = false;
+        try {
+            ois = new ObjectInputStream(PhoneApp.getInstance().openFileInput(BLFILE));
+            Object o = ois.readObject();
+            if (o != null) {
+                if (DBG) log("first object is: " + o);
+                    if (o instanceof Integer) {
+                        // check the version
+                        Integer ii = (Integer) o;
+                        if (ii == BLFILE_VER) {
+                            correctVer = true;
+                        }
+                        Object o2 = ois.readObject();
+                        setBlackList = (HashSet<PhoneNo>)o2;
+                    } else {
+                        HashSet<String> set = (HashSet<String>)o;
+                        setBlackList = new HashSet<PhoneNo>();
+                        for (String s : set) {
+                            setBlackList.add(new PhoneNo(s));
+                        }
+                    }
+                }
+            } catch (Exception e) {
+                log("exception is " + e);
+                // ignore
+            } finally {
+                if (ois != null) try{ ois.close();} catch (Exception e) {}
+            }
+            if (setBlackList == null) setBlackList = new HashSet<PhoneNo>();
+            // make save if not correctVer
+            if (!correctVer) saveBLFile();
+            //System.out.println("BL: " + setBlackList);
+    }
+    public boolean addBlackList(String s) {
+        if (s == null || s.equals("") || isBlackList(s)) return false;
+        setBlackList.add(new PhoneNo(s));
+        saveBLFile();
+        return true;
+    }
+
+    public void deleteBlackList(String s) {
+        setBlackList.remove(new PhoneNo(s));
+        saveBLFile();
+    }
+
+    public boolean isBlackList(String s) {
+        //System.out.println(setBlackList + ":" + s);
+        return setBlackList.contains(new PhoneNo(s));
+    }
+
+    private void saveBLFile() {
+        ObjectOutputStream oos = null;
+        try {
+            oos = new ObjectOutputStream(PhoneApp.getInstance().openFileOutput(BLFILE, Context.MODE_PRIVATE));
+            oos.writeObject(new Integer(BLFILE_VER));
+            oos.writeObject(setBlackList);
+        } catch (Exception e) {
+            log(e.toString());
+            // ignore
+        } finally {
+            if (oos != null) try{ oos.close();} catch (Exception e) { }
+        }
+    }
+
+    private OnPreferenceClickListener blackPreferenceListener = new OnPreferenceClickListener() {
+        public boolean onPreferenceClick(Preference p) {
+            final String phone = p.getTitle().toString();
+            final String title = CallFeaturesSetting.this.getString(R.string.remove_black, phone);
+            AlertDialog dialog = new AlertDialog.Builder(CallFeaturesSetting.this).setTitle(title).
+                    setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            deleteBlackList(phone);
+                            initPrefBlackList();
+                            //mCatBlackList.notifyHierarchyChanged();
+                        }
+                    }).setNegativeButton(R.string.cancel, null).create();
+            dialog.show();
+            return true;
+        }
+    };
+
+    private void initPrefBlackList() {
+        mCatBlackList.removeAll();
+        if (setBlackList == null || setBlackList.size() == 0) return;
+        ArrayList<PhoneNo> al = new ArrayList<PhoneNo>(setBlackList);
+        Collections.sort(al);
+        for (PhoneNo s : al) {
+            Preference pref = new Preference(this);
+            pref.setTitle(s.phone);
+            pref.setOnPreferenceClickListener(blackPreferenceListener);
+            mCatBlackList.addPreference(pref);
+        }
+    //====
     }
 
     @Override
@@ -1868,9 +2081,65 @@ public class CallFeaturesSetting extends PreferenceActivity
 	//Save Advanced Settings!
 	SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 	Editor outState = pref.edit();
+	outState.putBoolean(BUTTON_VIBRATE_OUTGOING, mButtonVibOutgoing.isChecked());
+	outState.putBoolean(BUTTON_VIBRATE_45, mButtonVib45.isChecked());
+	outState.putBoolean(BUTTON_VIBRATE_HANGUP, mButtonVibHangup.isChecked());
+	outState.putBoolean(BUTTON_SCREEN_AWAKE, mButtonScreenAwake.isChecked());
+	outState.putBoolean(BUTTON_ALWAYS_PROXIMITY, mButtonAlwaysProximity.isChecked());
+	outState.putBoolean(BUTTON_RETURN_HOME, mButtonReturnHome.isChecked());
+	outState.putBoolean(BUTTON_LED_NOTIFY, mButtonLedNotify.isChecked());
+	outState.putBoolean(BUTTON_SHOW_ORGAN, mButtonShowOrgan.isChecked());
+	outState.putBoolean(BUTTON_TURN_SILENCE, mButtonTurnSilence.isChecked());
+	outState.putBoolean(BUTTON_LEFT_HAND, mButtonLeftHand.isChecked());
+	outState.putBoolean(BUTTON_VIBRATE_CALL_WAITING, mButtonVibCallWaiting.isChecked());
+	outState.putBoolean(BUTTON_FORCE_TOUCH, mButtonForceTouch == null || mButtonForceTouch.isChecked());
 	outState.putString(BUTTON_TRACKBALL_ANSWER,mTrackballAnswer.getValue());
 	outState.commit();
 	init(pref);
 	super.onStop();
+    }
+    static class PhoneNo implements Comparable<PhoneNo>, java.io.Externalizable, java.io.Serializable {
+        static final long serialVersionUID = 32847013274L;
+        String phone;
+
+        public PhoneNo() {
+            phone = null;
+        }
+
+        public PhoneNo(String s) {
+            phone = s;
+        }
+
+        public int compareTo(PhoneNo bp) {
+            if (bp == null || bp.phone == null) return 1;
+            if (phone == null) return -1;
+            //System.out.println("compare : " + phone + " & " + bp.phone + " == " + PhoneNumberUtils.compare(phone, bp.phone));
+            return PhoneNumberUtils.compare(phone, bp.phone) ? 0 : phone.compareTo(bp.phone);
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (o instanceof PhoneNo) return compareTo((PhoneNo)o) == 0;
+            return false;
+        }
+
+        @Override
+        public int hashCode() {
+            if (phone == null) return 0;
+            int len = phone.length(); 
+            return len > 5 ? phone.substring(len - 5).hashCode() : phone.hashCode();
+        }
+
+        public void writeExternal(java.io.ObjectOutput out) throws java.io.IOException {
+            out.writeObject(phone);
+        }
+
+        public void readExternal(java.io.ObjectInput in) throws java.io.IOException, ClassNotFoundException {
+            phone = (String) in.readObject();
+        }
+
+        public String toString() {
+            return "PhoneNo: " + phone;
+        }
     }
 }
