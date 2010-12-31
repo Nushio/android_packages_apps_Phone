@@ -121,6 +121,13 @@
 		android:title="@string/trackball_answer" android:summary="@string/trackball_answer_sum" 
     	android:entries="@array/trackballLabels" android:entryValues="@array/trackballValues"
     	android:dialogTitle="@string/trackball_answer" android:persistent="false" />
+    <ListPreference android:key="button_trackball_hangup_timed"
+        android:title="@string/trackball_hangup" 
+        android:summary="@string/trackball_hangup_sum" 
+        android:entries="@array/trackballHangupLabels" 
+        android:entryValues="@array/trackballValues"
+        android:dialogTitle="@string/trackball_hangup" 
+        android:persistent="false" />
 	<!-- end Trackball Answer -->
     <CheckBoxPreference
         android:key="button_turn_silence"

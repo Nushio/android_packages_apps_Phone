@@ -27,6 +27,7 @@ import android.content.SharedPreferences.Editor;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
+import android.content.res.Configuration;
 import android.database.Cursor;
 import android.hardware.Sensor;
 import android.hardware.SensorManager;
@@ -408,9 +409,14 @@ static boolean mForceTouch;
 private static final String BUTTON_VIBRATE_CALL_WAITING = "button_vibrate_call_waiting";
 private CheckBoxPreference mButtonVibCallWaiting;
 static boolean mVibCallWaiting;
+//Trackball Answer
 private static final String BUTTON_TRACKBALL_ANSWER = "button_trackball_answer_timed";
 private ListPreference mTrackballAnswer;
 static String mTrackAnswer;
+//Trackball Hangup
+private static final String BUTTON_TRACKBALL_HANGUP = "button_trackball_hangup_timed";
+private ListPreference mTrackballHangup;
+static String mTrackHangup;
 static boolean mTurnSilence;
 private static final String BUTTON_TURN_SILENCE     = "button_turn_silence";
 private CheckBoxPreference mButtonTurnSilence;
@@ -1514,6 +1520,13 @@ mButtonVibCallWaiting = (CheckBoxPreference) prefSet.findPreference(BUTTON_VIBRA
 mButtonVibCallWaiting.setChecked(mVibCallWaiting);
 mTrackballAnswer   = (ListPreference) prefSet.findPreference(BUTTON_TRACKBALL_ANSWER);
 mTrackballAnswer.setValue(mTrackAnswer);
+mTrackballHangup = (ListPreference) prefSet.findPreference(BUTTON_TRACKBALL_HANGUP);
+mTrackballHangup.setValue(mTrackHangup);
+//No reason to show Trackball Answer & Hangup if it doesn't have a Trackball.
+if(getResources().getConfiguration().navigation != 3){
+   ((PreferenceCategory) prefSet.findPreference(CATEGORY_ADVANCED)).removePreference(mTrackballAnswer);
+   ((PreferenceCategory) prefSet.findPreference(CATEGORY_ADVANCED)).removePreference(mTrackballHangup);
+}
 mButtonForceTouch  = (CheckBoxPreference) prefSet.findPreference(BUTTON_FORCE_TOUCH);
 if (getResources().getBoolean(R.bool.allow_in_call_touch_ui)) {
     ((PreferenceCategory) prefSet.findPreference(CATEGORY_ADVANCED)).
@@ -1876,6 +1889,7 @@ private void init(SharedPreferences pref) {
     mVibCallWaiting = pref.getBoolean(BUTTON_VIBRATE_CALL_WAITING, false);
     mForceTouch  = pref.getBoolean(BUTTON_FORCE_TOUCH, PhoneUtils.isProximitySensorAvailable(PhoneApp.getInstance()));
     mTrackAnswer = pref.getString(BUTTON_TRACKBALL_ANSWER, "-1");
+    mTrackHangup = pref.getString(BUTTON_TRACKBALL_HANGUP, "-1");
     ObjectInputStream ois = null;
     boolean correctVer = false;
     try {
@@ -1991,6 +2005,7 @@ protected void onStop() {
     outState.putBoolean(BUTTON_LEFT_HAND, mButtonLeftHand.isChecked());
     outState.putBoolean(BUTTON_VIBRATE_CALL_WAITING, mButtonVibCallWaiting.isChecked());
     outState.putString(BUTTON_TRACKBALL_ANSWER,mTrackballAnswer.getValue());
+    outState.putString(BUTTON_TRACKBALL_HANGUP,mTrackballHangup.getValue());
     outState.putBoolean(BUTTON_FORCE_TOUCH, mButtonForceTouch == null || mButtonForceTouch.isChecked());
     outState.commit();
     init(pref);

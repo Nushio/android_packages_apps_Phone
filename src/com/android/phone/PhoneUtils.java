@@ -114,6 +114,7 @@ public class PhoneUtils {
     /** Noise suppression status as selected by user */
     private static boolean sIsNoiseSuppressionEnabled = true;
 
+    //Not sure who originally wrote this. Adds Proximity Sensor detection
     /** Proximity Sensor available or not, 0 not initial, 1 available, -1 unavailable */
     private static int sProximitySensorAvailable = 0;
 
@@ -357,7 +358,8 @@ public class PhoneUtils {
         }
         return conn;
     }
-
+    
+    //Not sure who originally wrote this. Adds Proximity Sensor detection
     static boolean isProximitySensorAvailable(Context ctx) {
         if (sProximitySensorAvailable != 0) {
             return sProximitySensorAvailable == 1;
